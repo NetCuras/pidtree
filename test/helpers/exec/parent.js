@@ -1,7 +1,5 @@
-'use strict';
-
-var path = require('path');
-var cp = require('child_process');
+import cp from 'child_process';
+import path from 'path';
 
 var started = false;
 var spawned = {};

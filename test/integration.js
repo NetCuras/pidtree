@@ -6,19 +6,22 @@ import test from 'ava';
 import pify from 'pify';
 import treek from 'tree-kill';
 
-import pidtree from '..';
+import { pidtree } from '../index.js';
+
+const dirname = path.dirname(new URL(import.meta.url).pathname);
 
 const scripts = {
-  parent: path.join(__dirname, 'helpers', 'exec', 'parent.js'),
-  child: path.join(__dirname, 'helpers', 'exec', 'child.js'),
+  parent: path.join(dirname, 'helpers', 'exec', 'parent.js'),
+  child: path.join(dirname, 'helpers', 'exec', 'child.js'),
 };
 
 test('should work with a single pid', async t => {
   let result = await pidtree(-1, {advanced: true});
-  t.log(result);
+  // t.log(result);
 
   t.true(Array.isArray(result));
   result.forEach((p, i) => {
+    i = i.toString();
     t.is(typeof p, 'object', i);
     t.is(typeof p.ppid, 'number', i);
     t.false(isNaN(p.ppid), i);
@@ -30,6 +33,7 @@ test('should work with a single pid', async t => {
 
   t.true(Array.isArray(result));
   result.forEach((p, i) => {
+    i = i.toString();
     t.is(typeof p, 'number', i);
     t.false(isNaN(p), i);
   });
@@ -109,18 +113,18 @@ test('show include the root if the root option is passsed', async t => {
 });
 
 test('should throw an error if an invalid pid is provided', async t => {
-  let err = await t.throws(pidtree(null));
+  let err = await t.throwsAsync(pidtree(null));
   t.is(err.message, 'The pid provided is invalid');
-  err = await t.throws(pidtree([]));
+  err = await t.throwsAsync(pidtree([]));
   t.is(err.message, 'The pid provided is invalid');
-  err = await t.throws(pidtree('invalid'));
+  err = await t.throwsAsync(pidtree('invalid'));
   t.is(err.message, 'The pid provided is invalid');
-  err = await t.throws(pidtree(-2));
+  err = await t.throwsAsync(pidtree(-2));
   t.is(err.message, 'The pid provided is invalid');
 });
 
 test('should throw an error if the pid does not exists', async t => {
-  const err = await t.throws(pidtree(65535));
+  const err = await t.throwsAsync(pidtree(65535));
   t.is(err.message, 'No matching pid found');
 });
 

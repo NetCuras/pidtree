@@ -1,24 +1,22 @@
 import test from 'ava';
-import mockery from 'mockery';
+import sinon from 'sinon';
 
 import pify from 'pify';
 
-import mocks from './helpers/mocks';
+import mocks from './helpers/mocks.js';
 
-test.before(() => {
-  mockery.enable({
-    warnOnReplace: false,
-    warnOnUnregistered: false,
-    useCleanCache: true,
-  });
-});
+// to be mocked by sinon:
+import child_process from 'child_process';
+import os from 'os';
+
+let sandbox;
 
 test.beforeEach(() => {
-  mockery.resetCache();
+  sandbox = sinon.createSandbox();
 });
 
-test.after(() => {
-  mockery.disable();
+test.afterEach.always(t => {
+  sandbox.restore();
 });
 
 test('should parse wmic output on Windows', async t => {
@@ -28,21 +26,14 @@ test('should parse wmic output on Windows', async t => {
     `777              778      \r\r\n` +
     `0                779      \r\r\n\r\r\n`;
 
-  mockery.registerMock('child_process', {
-    spawn: () => mocks.spawn(stdout, '', null, 0, null),
-  });
-  mockery.registerMock('os', {
-    EOL: '\r\n',
-    platform: () => 'linux',
-    type: () => 'type',
-    release: () => 'release',
-  });
+  sandbox.stub(child_process, 'spawn').callsFake(() => mocks.spawn(stdout, '', null, 0, null));
+  sandbox.stub(os, 'EOL').returns('\n');
+  sandbox.stub(os, 'platform').returns('linux');
+  sandbox.stub(os, 'type').returns('type');
+  sandbox.stub(os, 'release').returns('release');
 
-  const wmic = require('../lib/wmic');
+  const wmic = (await import('../lib/wmic.js')).wmic;
 
   const result = await pify(wmic)();
   t.deepEqual(result, [[0, 777], [777, 778], [0, 779]]);
-
-  mockery.deregisterMock('child_process');
-  mockery.deregisterMock('os');
 });

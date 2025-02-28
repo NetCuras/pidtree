@@ -1,5 +1,3 @@
-'use strict';
-
 var started = false;
 setInterval(function() {
   if (started) return;

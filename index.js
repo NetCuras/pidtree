@@ -1,4 +1,4 @@
-'use strict';
+import { pidtreeCallback } from './lib/pidtree.js';
 
 function pify(fn, arg1, arg2) {
   return new Promise(function(resolve, reject) {
@@ -18,8 +18,6 @@ if (!String.prototype.startsWith) {
   };
 }
 
-var pidtree = require('./lib/pidtree');
-
 /**
  * Get the list of children pids of the given pid.
  * @public
@@ -32,18 +30,16 @@ var pidtree = require('./lib/pidtree');
  * provided a promise is returned instead.
  * @returns  {Promise.<Object[]>} Only when the callback is not provided.
  */
-function list(pid, options, callback) {
+export function pidtree(pid, options, callback) {
   if (typeof options === 'function') {
     callback = options;
     options = undefined;
   }
 
   if (typeof callback === 'function') {
-    pidtree(pid, options, callback);
+    pidtreeCallback(pid, options, callback);
     return;
   }
 
-  return pify(pidtree, pid, options);
+  return pify(pidtreeCallback, pid, options);
 }
-
-module.exports = list;

@@ -2,7 +2,7 @@ import test from 'ava';
 
 import tspan from 'time-span';
 
-import pidtree from '..';
+import { pidtree } from '../index.js';
 
 async function execute(pid, times) {
   const end = tspan();

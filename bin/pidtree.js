@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 
-'use strict';
-
-var os = require('os');
-var pidtree = require('..');
+import os from 'os';
+import { pidtree } from '../index.js';
 
 // The method startsWith is not defined on string objects in node 0.10
 // eslint-disable-next-line no-extend-native
